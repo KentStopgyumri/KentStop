@@ -1,9 +1,5 @@
-// ============================================
-// KENT STOP ONLINE
-// app.js — Card Dealing Version
-// ============================================
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
     getDatabase,
@@ -13,91 +9,142 @@ import {
     update,
     remove,
     onValue
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
-// ============================================
-// FIREBASE
-// ============================================
+/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBXjRjAV1o_zBf64ej_sTvJDiQs70bUx4I",
-    authDomain: "kentstop.firebaseapp.com",
-    databaseURL: "https://kentstop-default-rtdb.firebaseio.com/",
-    projectId: "kentstop",
-    storageBucket: "kentstop.firebasestorage.app",
-    messagingSenderId: "441294086154",
-    appId: "1:441294086154:web:a8cb923eb81a969baafff3",
-    measurementId: "G-TCTYQQYM4P"
+
+    apiKey:
+        "AIzaSyBXjRjAV1o_zBf64ej_sTvJDiQs70bUx4I",
+
+    authDomain:
+        "kentstop.firebaseapp.com",
+
+    databaseURL:
+        "https://kentstop-default-rtdb.firebaseio.com/",
+
+    projectId:
+        "kentstop",
+
+    storageBucket:
+        "kentstop.firebasestorage.app",
+
+    messagingSenderId:
+        "441294086154",
+
+    appId:
+        "1:441294086154:web:a8cb923eb81a969baafff3",
+
+    measurementId:
+        "G-TCTYQQYM4P"
 };
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
 
-console.log("🔥 Kent Stop Firebase-ը միացված է");
+const app =
+    initializeApp(firebaseConfig);
+
+const database =
+    getDatabase(app);
+
+console.log("🔥 Firebase connected");
 
 
-// ============================================
-// DOM
-// ============================================
+/* ================= DOM ================= */
 
-const homePage = document.getElementById("homePage");
-const lobbyPage = document.getElementById("lobbyPage");
-const gamePage = document.getElementById("gamePage");
+const homePage =
+    document.getElementById("homePage");
 
-const nicknameInput = document.getElementById("nickname");
-const roomCodeInput = document.getElementById("roomCode");
+const lobbyPage =
+    document.getElementById("lobbyPage");
 
-const createGameBtn = document.getElementById("createGameBtn");
-const joinGameBtn = document.getElementById("joinGameBtn");
+const gamePage =
+    document.getElementById("gamePage");
 
-const errorMessage = document.getElementById("errorMessage");
 
-const displayRoomCode =
+const nickname =
+    document.getElementById("nickname");
+
+const roomCode =
+    document.getElementById("roomCode");
+
+
+const createBtn =
+    document.getElementById("createGameBtn");
+
+const joinBtn =
+    document.getElementById("joinGameBtn");
+
+const startBtn =
+    document.getElementById("startGameBtn");
+
+const copyBtn =
+    document.getElementById("copyCodeBtn");
+
+const leaveBtn =
+    document.getElementById("leaveGameBtn");
+
+const gameLeaveBtn =
+    document.getElementById("gameLeaveBtn");
+
+
+const error =
+    document.getElementById("errorMessage");
+
+const displayRoom =
     document.getElementById("displayRoomCode");
 
-const gameRoomCode =
+const headerRoom =
+    document.getElementById("headerRoom");
+
+const gameRoom =
     document.getElementById("gameRoomCode");
 
-const playersList =
+const playerName =
+    document.getElementById("myPlayerName");
+
+const playerList =
     document.getElementById("playersList");
 
 const playerCount =
     document.getElementById("playerCount");
 
-const copyCodeBtn =
-    document.getElementById("copyCodeBtn");
-
-const startGameBtn =
-    document.getElementById("startGameBtn");
-
-const leaveGameBtn =
-    document.getElementById("leaveGameBtn");
-
 const lobbyMessage =
     document.getElementById("lobbyMessage");
-
-const myPlayerName =
-    document.getElementById("myPlayerName");
 
 const cardsArea =
     document.getElementById("cardsArea");
 
+const gamePlayers =
+    document.getElementById("gamePlayers");
 
-// ============================================
-// GAME VARIABLES
-// ============================================
+const tableMessage =
+    document.getElementById("tableMessage");
 
-let currentRoomCode = "";
-let currentPlayerId = "";
-let currentPlayerName = "";
+const turnMessage =
+    document.getElementById("turnMessage");
 
-let unsubscribeRoom = null;
+const kentBtn =
+    document.getElementById("kentBtn");
+
+const stopBtn =
+    document.getElementById("stopBtn");
 
 
-// ============================================
-// CARD DECK
-// ============================================
+/* ================= STATE ================= */
+
+let currentRoom = "";
+let currentPlayer = "";
+let currentName = "";
+
+let roomListener = null;
+
+let selectedCard = null;
+
+
+/* ================= DECK ================= */
 
 const suits = [
     "♠",
@@ -132,9 +179,9 @@ function createDeck() {
         for (const value of values) {
 
             deck.push({
-                id: `${value}${suit}`,
-                suit: suit,
-                value: value
+                id: value + suit,
+                value,
+                suit
             });
 
         }
@@ -144,16 +191,13 @@ function createDeck() {
 }
 
 
-// ============================================
-// SHUFFLE
-// ============================================
+function shuffle(deck) {
 
-function shuffleDeck(deck) {
-
-    const shuffled = [...deck];
+    const arr =
+        [...deck];
 
     for (
-        let i = shuffled.length - 1;
+        let i = arr.length - 1;
         i > 0;
         i--
     ) {
@@ -164,62 +208,22 @@ function shuffleDeck(deck) {
             );
 
         [
-            shuffled[i],
-            shuffled[j]
-        ] = [
-            shuffled[j],
-            shuffled[i]
+            arr[i],
+            arr[j]
+        ] =
+        [
+            arr[j],
+            arr[i]
         ];
     }
 
-    return shuffled;
+    return arr;
 }
 
 
-// ============================================
-// GENERATE PLAYER ID
-// ============================================
+/* ================= HELPERS ================= */
 
-function generatePlayerId() {
-
-    return (
-        "player_" +
-        crypto.randomUUID()
-    );
-}
-
-
-// ============================================
-// GENERATE ROOM CODE
-// ============================================
-
-function generateRoomCode() {
-
-    const chars =
-        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-    let code = "";
-
-    for (let i = 0; i < 6; i++) {
-
-        code += chars[
-            Math.floor(
-                Math.random() *
-                chars.length
-            )
-        ];
-
-    }
-
-    return code;
-}
-
-
-// ============================================
-// PAGE
-// ============================================
-
-function showPage(page) {
+function page(page) {
 
     homePage.classList.add("hidden");
     lobbyPage.classList.add("hidden");
@@ -229,190 +233,151 @@ function showPage(page) {
 }
 
 
-// ============================================
-// ERROR
-// ============================================
+function showError(text) {
 
-function showError(message) {
-
-    errorMessage.textContent =
-        message;
+    error.textContent = text;
 }
 
 
 function clearError() {
 
-    errorMessage.textContent = "";
+    error.textContent = "";
 }
 
 
-// ============================================
-// NICKNAME
-// ============================================
+function playerId() {
 
-function getNickname() {
+    return (
+        "p_" +
+        crypto.randomUUID()
+    );
+}
 
-    const nickname =
-        nicknameInput.value.trim();
 
-    if (!nickname) {
+function roomId() {
 
-        showError(
-            "Գրիր քո մականունը։"
-        );
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-        nicknameInput.focus();
+    let code = "";
 
-        return null;
+    for (let i = 0; i < 6; i++) {
+
+        code +=
+            chars[
+                Math.floor(
+                    Math.random() *
+                    chars.length
+                )
+            ];
     }
 
-    if (nickname.length < 2) {
-
-        showError(
-            "Մականունը պետք է լինի առնվազն 2 նիշ։"
-        );
-
-        return null;
-    }
-
-    return nickname;
+    return code;
 }
 
 
-// ============================================
-// SAVE SESSION
-// ============================================
-
-function saveSession() {
-
-    localStorage.setItem(
-        "kentStopRoomCode",
-        currentRoomCode
-    );
-
-    localStorage.setItem(
-        "kentStopPlayerId",
-        currentPlayerId
-    );
-
-    localStorage.setItem(
-        "kentStopPlayerName",
-        currentPlayerName
-    );
-}
-
-
-// ============================================
-// CREATE GAME
-// ============================================
+/* ================= CREATE ================= */
 
 async function createGame() {
 
     clearError();
 
-    const nickname =
-        getNickname();
+    const name =
+        nickname.value.trim();
 
-    if (!nickname) return;
+    if (name.length < 2) {
 
-    createGameBtn.disabled = true;
-    createGameBtn.textContent =
-        "⏳ Ստեղծվում է...";
+        showError(
+            "Գրիր քո անունը։"
+        );
+
+        return;
+    }
+
+
+    createBtn.disabled = true;
 
     try {
 
-        let roomCode = "";
+        let code = "";
 
         for (let i = 0; i < 10; i++) {
 
-            const testCode =
-                generateRoomCode();
+            const test =
+                roomId();
 
-            const snapshot =
+            const snap =
                 await get(
                     ref(
                         database,
-                        `rooms/${testCode}`
+                        "rooms/" + test
                     )
                 );
 
-            if (!snapshot.exists()) {
+            if (!snap.exists()) {
 
-                roomCode = testCode;
+                code = test;
 
                 break;
             }
         }
 
-        if (!roomCode) {
+
+        if (!code) {
             throw new Error(
-                "Room code creation failed"
+                "No room"
             );
         }
 
 
-        currentRoomCode =
-            roomCode;
-
-        currentPlayerId =
-            generatePlayerId();
-
-        currentPlayerName =
-            nickname;
-
-
-        const roomData = {
-
-            status: "waiting",
-
-            hostId:
-                currentPlayerId,
-
-            createdAt:
-                Date.now(),
-
-            players: {
-
-                [currentPlayerId]: {
-
-                    id:
-                        currentPlayerId,
-
-                    name:
-                        currentPlayerName,
-
-                    ready:
-                        true,
-
-                    joinedAt:
-                        Date.now()
-
-                }
-
-            }
-
-        };
+        currentRoom = code;
+        currentPlayer = playerId();
+        currentName = name;
 
 
         await set(
             ref(
                 database,
-                `rooms/${roomCode}`
+                "rooms/" + code
             ),
-            roomData
+            {
+
+                status: "waiting",
+
+                hostId:
+                    currentPlayer,
+
+                createdAt:
+                    Date.now(),
+
+                turn: null,
+
+                players: {
+
+                    [currentPlayer]: {
+
+                        id:
+                            currentPlayer,
+
+                        name:
+                            currentName,
+
+                        joinedAt:
+                            Date.now()
+
+                    }
+
+                }
+
+            }
         );
 
-
-        saveSession();
 
         openLobby();
 
-    } catch (error) {
+    } catch (e) {
 
-        console.error(
-            "Create game error:",
-            error
-        );
+        console.error(e);
 
         showError(
             "Խաղը ստեղծել չհաջողվեց։"
@@ -420,68 +385,66 @@ async function createGame() {
 
     } finally {
 
-        createGameBtn.disabled =
+        createBtn.disabled =
             false;
-
-        createGameBtn.textContent =
-            "🏠 Ստեղծել խաղ";
     }
 }
 
 
-// ============================================
-// JOIN GAME
-// ============================================
+/* ================= JOIN ================= */
 
 async function joinGame() {
 
     clearError();
 
-    const nickname =
-        getNickname();
+    const name =
+        nickname.value.trim();
 
-    if (!nickname) return;
-
-
-    const roomCode =
-        roomCodeInput.value
+    const code =
+        roomCode.value
             .trim()
             .toUpperCase();
 
 
-    if (roomCode.length !== 6) {
+    if (name.length < 2) {
 
         showError(
-            "Գրիր 6 նիշանոց խաղի կոդը։"
+            "Գրիր քո անունը։"
         );
 
         return;
     }
 
 
-    joinGameBtn.disabled = true;
+    if (code.length !== 6) {
 
-    joinGameBtn.textContent =
-        "⏳ Միանում է...";
+        showError(
+            "Գրիր 6 նիշանոց կոդը։"
+        );
 
+        return;
+    }
+
+
+    joinBtn.disabled = true;
 
     try {
 
         const roomRef =
             ref(
                 database,
-                `rooms/${roomCode}`
+                "rooms/" + code
             );
 
 
-        const snapshot =
+        const snap =
             await get(roomRef);
 
 
-        if (!snapshot.exists()) {
+        if (!snap.exists()) {
 
             showError(
-                "❌ Այդ խաղը չի գտնվել։"
+                "Այդ խաղը չի գտնվել։"
             );
 
             return;
@@ -489,17 +452,7 @@ async function joinGame() {
 
 
         const room =
-            snapshot.val();
-
-
-        if (room.status !== "waiting") {
-
-            showError(
-                "❌ Խաղն արդեն սկսվել է։"
-            );
-
-            return;
-        }
+            snap.val();
 
 
         const players =
@@ -508,41 +461,48 @@ async function joinGame() {
             );
 
 
-        if (players.length >= 4) {
+        if (
+            room.status !==
+            "waiting"
+        ) {
 
             showError(
-                "❌ Խաղը լիքն է։"
+                "Խաղն արդեն սկսվել է։"
             );
 
             return;
         }
 
 
-        currentRoomCode =
-            roomCode;
+        if (
+            players.length >= 4
+        ) {
 
-        currentPlayerId =
-            generatePlayerId();
+            showError(
+                "Խաղը լիքն է։"
+            );
 
-        currentPlayerName =
-            nickname;
+            return;
+        }
+
+
+        currentRoom = code;
+        currentPlayer = playerId();
+        currentName = name;
 
 
         await set(
             ref(
                 database,
-                `rooms/${roomCode}/players/${currentPlayerId}`
+                `rooms/${code}/players/${currentPlayer}`
             ),
             {
 
                 id:
-                    currentPlayerId,
+                    currentPlayer,
 
                 name:
-                    currentPlayerName,
-
-                ready:
-                    true,
+                    currentName,
 
                 joinedAt:
                     Date.now()
@@ -551,16 +511,11 @@ async function joinGame() {
         );
 
 
-        saveSession();
-
         openLobby();
 
-    } catch (error) {
+    } catch (e) {
 
-        console.error(
-            "Join game error:",
-            error
-        );
+        console.error(e);
 
         showError(
             "Միանալ չհաջողվեց։"
@@ -568,76 +523,60 @@ async function joinGame() {
 
     } finally {
 
-        joinGameBtn.disabled =
+        joinBtn.disabled =
             false;
-
-        joinGameBtn.textContent =
-            "🔑 Միանալ խաղին";
     }
 }
 
 
-// ============================================
-// OPEN LOBBY
-// ============================================
+/* ================= LOBBY ================= */
 
 function openLobby() {
 
-    showPage(lobbyPage);
+    page(lobbyPage);
 
-    displayRoomCode.textContent =
-        currentRoomCode;
+    displayRoom.textContent =
+        currentRoom;
 
-    gameRoomCode.textContent =
-        currentRoomCode;
+    headerRoom.textContent =
+        currentRoom;
 
-    myPlayerName.textContent =
-        currentPlayerName;
-
-    listenToRoom();
+    listenRoom();
 }
 
 
-// ============================================
-// LISTEN ROOM
-// ============================================
+function listenRoom() {
 
-function listenToRoom() {
-
-    if (unsubscribeRoom) {
-        unsubscribeRoom();
+    if (roomListener) {
+        roomListener();
     }
 
 
     const roomRef =
         ref(
             database,
-            `rooms/${currentRoomCode}`
+            "rooms/" + currentRoom
         );
 
 
-    unsubscribeRoom =
+    roomListener =
         onValue(
             roomRef,
-            snapshot => {
+            snap => {
 
-                if (!snapshot.exists()) {
+                if (!snap.exists()) {
 
-                    showPage(homePage);
-
-                    showError(
-                        "Խաղասենյակը փակվել է։"
-                    );
+                    page(homePage);
 
                     return;
                 }
 
 
                 const room =
-                    snapshot.val();
+                    snap.val();
 
 
-                updateLobby(room);
+                renderLobby(room);
 
 
                 if (
@@ -645,7 +584,7 @@ function listenToRoom() {
                     "playing"
                 ) {
 
-                    showGame(room);
+                    renderGame(room);
                 }
 
             }
@@ -653,11 +592,9 @@ function listenToRoom() {
 }
 
 
-// ============================================
-// UPDATE LOBBY
-// ============================================
+/* ================= LOBBY RENDER ================= */
 
-function updateLobby(room) {
+function renderLobby(room) {
 
     const players =
         Object.values(
@@ -666,121 +603,107 @@ function updateLobby(room) {
 
 
     playerCount.textContent =
-        `${players.length}/4`;
+        players.length + "/4";
 
 
-    playersList.innerHTML =
+    playerList.innerHTML =
         "";
 
 
     players.forEach(
-        (player, index) => {
+        (p, index) => {
 
-            const card =
-                document.createElement(
-                    "div"
-                );
+            playerList.innerHTML += `
 
-            card.className =
-                "player-card";
+                <div class="player-card">
 
+                    <div class="player-avatar">
+                        ${index === 0 ? "👑" : "👤"}
+                    </div>
 
-            const avatar =
-                document.createElement(
-                    "div"
-                );
+                    <div>
 
-            avatar.className =
-                "player-avatar";
+                        <div class="player-name">
+                            ${escapeHtml(p.name)}
+                        </div>
 
-            avatar.textContent =
-                index === 0
-                    ? "👑"
-                    : "👤";
+                        <div class="player-status">
+                            ${index === 0
+                                ? "Խաղի ստեղծող"
+                                : "Պատրաստ"}
+                        </div>
 
+                    </div>
 
-            const info =
-                document.createElement(
-                    "div"
-                );
+                </div>
 
-            info.className =
-                "player-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-            name.className =
-                "player-name";
-
-            name.textContent =
-                player.name;
-
-
-            const status =
-                document.createElement(
-                    "div"
-                );
-
-            status.className =
-                "player-status";
-
-            status.textContent =
-                index === 0
-                    ? "Ստեղծող"
-                    : "Միացած է";
-
-
-            info.appendChild(name);
-            info.appendChild(status);
-
-            card.appendChild(avatar);
-            card.appendChild(info);
-
-            playersList.appendChild(card);
-
+            `;
         }
     );
 
 
-    const isHost =
+    const host =
         room.hostId ===
-        currentPlayerId;
+        currentPlayer;
 
 
-    startGameBtn.style.display =
-        isHost
+    startBtn.style.display =
+        host
             ? "block"
             : "none";
 
 
-    if (players.length < 4) {
+    if (
+        players.length < 4
+    ) {
 
         lobbyMessage.textContent =
             `Սպասում ենք խաղացողներին... ${players.length}/4`;
 
-        startGameBtn.disabled =
+        startBtn.disabled =
             true;
 
     } else {
 
         lobbyMessage.textContent =
-            "🔥 Բոլոր 4 խաղացողները միացել են։";
+            "🔥 4 խաղացող պատրաստ են։";
 
-        startGameBtn.disabled =
+        startBtn.disabled =
             false;
     }
 }
 
 
-// ============================================
-// DEAL CARDS
-// ============================================
+/* ================= START ================= */
 
-async function dealCards(room) {
+async function startGame() {
+
+    const snap =
+        await get(
+            ref(
+                database,
+                "rooms/" + currentRoom
+            )
+        );
+
+
+    if (!snap.exists()) {
+        return;
+    }
+
+
+    const room =
+        snap.val();
+
+
+    if (
+        room.hostId !==
+        currentPlayer
+    ) {
+
+        return;
+    }
+
 
     const players =
         Object.values(
@@ -790,40 +713,16 @@ async function dealCards(room) {
 
     if (players.length !== 4) {
 
-        console.log(
-            "Քարտերը չեն բաժանվել․ պետք է 4 խաղացող։"
+        alert(
+            "Պետք է լինի 4 խաղացող։"
         );
 
         return;
     }
 
 
-    /*
-     * Միայն host-ն է բաժանում քարտերը։
-     */
-
-    if (
-        room.hostId !==
-        currentPlayerId
-    ) {
-
-        return;
-    }
-
-
-    /*
-     * Եթե քարտերը արդեն բաժանված են,
-     * նորից չենք բաժանում։
-     */
-
-    if (room.hands) {
-
-        return;
-    }
-
-
     const deck =
-        shuffleDeck(
+        shuffle(
             createDeck()
         );
 
@@ -832,9 +731,9 @@ async function dealCards(room) {
 
 
     players.forEach(
-        (player, index) => {
+        (p, index) => {
 
-            hands[player.id] =
+            hands[p.id] =
                 deck.slice(
                     index * 4,
                     index * 4 + 4
@@ -845,355 +744,454 @@ async function dealCards(room) {
 
 
     /*
-     * Պահում ենք քարտերը Firebase-ում։
+     * Առաջին խաղացողը սկսում է։
      */
+
+    const firstPlayer =
+        players[0].id;
+
 
     await update(
         ref(
             database,
-            `rooms/${currentRoomCode}`
+            "rooms/" + currentRoom
         ),
         {
-            hands: hands,
-            deckRemaining:
+
+            status:
+                "playing",
+
+            hands:
+                hands,
+
+            deck:
                 deck.slice(16),
-            cardsDealtAt:
+
+            turn:
+                firstPlayer,
+
+            startedAt:
                 Date.now()
+
         }
     );
 
 
     console.log(
-        "🃏 Քարտերը բաժանվեցին!"
+        "🎮 GAME STARTED"
     );
 }
 
 
-// ============================================
-// START GAME
-// ============================================
+/* ================= GAME ================= */
 
-async function startGame() {
+function renderGame(room) {
 
-    try {
+    page(gamePage);
 
-        const roomRef =
-            ref(
-                database,
-                `rooms/${currentRoomCode}`
+
+    gameRoom.textContent =
+        currentRoom;
+
+    headerRoom.textContent =
+        currentRoom;
+
+    playerName.textContent =
+        currentName;
+
+
+    renderGamePlayers(room);
+
+    renderCards(
+        room.hands?.[currentPlayer] ||
+        []
+    );
+
+
+    const myTurn =
+        room.turn ===
+        currentPlayer;
+
+
+    if (myTurn) {
+
+        tableMessage.textContent =
+            "🎴 Քո հերթն է";
+
+        turnMessage.textContent =
+            "Ընտրիր քարտ";
+
+    } else {
+
+        const current =
+            room.players?.[room.turn];
+
+        tableMessage.textContent =
+            "⏳ Խաղը շարունակվում է";
+
+        turnMessage.textContent =
+            current
+                ? `${current.name}-ի հերթն է`
+                : "Սպասում ենք...";
+    }
+}
+
+
+/* ================= PLAYERS ================= */
+
+function renderGamePlayers(room) {
+
+    const players =
+        Object.values(
+            room.players || {}
+        );
+
+
+    gamePlayers.innerHTML =
+        "";
+
+
+    players.forEach(
+        p => {
+
+            const active =
+                room.turn === p.id
+                    ? "active"
+                    : "";
+
+
+            gamePlayers.innerHTML += `
+
+                <div class="game-player ${active}">
+
+                    <div class="game-player-avatar">
+                        ${p.id === currentPlayer
+                            ? "🙂"
+                            : "👤"}
+                    </div>
+
+                    <div class="game-player-name">
+                        ${escapeHtml(p.name)}
+                    </div>
+
+                    ${
+                        room.turn === p.id
+                            ? `<div class="game-player-turn">
+                                ● ՀԵՐԹ
+                              </div>`
+                            : ""
+                    }
+
+                </div>
+
+            `;
+        }
+    );
+}
+
+
+/* ================= CARDS ================= */
+
+function renderCards(cards) {
+
+    cardsArea.innerHTML =
+        "";
+
+    selectedCard = null;
+
+
+    cards.forEach(
+        (card, index) => {
+
+            const element =
+                document.createElement(
+                    "div"
+                );
+
+
+            element.className =
+                "game-card";
+
+
+            if (
+                card.suit === "♥" ||
+                card.suit === "♦"
+            ) {
+
+                element.style.color =
+                    "#e63950";
+            }
+
+
+            element.innerHTML = `
+
+                <div>
+                    <strong>
+                        ${card.value}
+                    </strong>
+
+                    <br>
+
+                    ${card.suit}
+                </div>
+
+            `;
+
+
+            element.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".game-card"
+                        )
+                        .forEach(
+                            c =>
+                                c.classList.remove(
+                                    "selected"
+                                )
+                        );
+
+
+                    element.classList.add(
+                        "selected"
+                    );
+
+
+                    selectedCard =
+                        card;
+
+
+                    console.log(
+                        "Selected:",
+                        card
+                    );
+
+                }
             );
 
 
-        const snapshot =
-            await get(roomRef);
+            cardsArea.appendChild(
+                element
+            );
+
+        }
+    );
+}
 
 
-        if (!snapshot.exists()) {
+/* ================= KENT ================= */
+
+kentBtn.addEventListener(
+    "click",
+    async () => {
+
+        if (!selectedCard) {
+
+            alert(
+                "Նախ ընտրիր քարտ։"
+            );
+
+            return;
+        }
+
+
+        const snap =
+            await get(
+                ref(
+                    database,
+                    "rooms/" + currentRoom
+                )
+            );
+
+
+        if (!snap.exists()) {
             return;
         }
 
 
         const room =
-            snapshot.val();
+            snap.val();
 
-
-        const players =
-            Object.values(
-                room.players || {}
-            );
-
-
-        if (room.hostId !== currentPlayerId) {
-
-            alert(
-                "Միայն ստեղծողը կարող է սկսել խաղը։"
-            );
-
-            return;
-        }
-
-
-        if (players.length !== 4) {
-
-            alert(
-                "Պետք է լինի 4 խաղացող։"
-            );
-
-            return;
-        }
-
-
-        /*
-         * Նախ բաժանում ենք քարտերը։
-         */
-
-        await dealCards(room);
-
-
-        /*
-         * Հետո փոխում ենք խաղի վիճակը։
-         */
-
-        await update(
-            roomRef,
-            {
-                status:
-                    "playing"
-            }
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Start game error:",
-            error
-        );
-
-        alert(
-            "Խաղը սկսել չհաջողվեց։"
-        );
-    }
-}
-
-
-// ============================================
-// SHOW GAME
-// ============================================
-
-function showGame(room) {
-
-    showPage(gamePage);
-
-    gameRoomCode.textContent =
-        currentRoomCode;
-
-    myPlayerName.textContent =
-        currentPlayerName;
-
-
-    /*
-     * Գտնում ենք մեր քարտերը։
-     */
-
-    const myCards =
-        room.hands &&
-        room.hands[currentPlayerId];
-
-
-    renderCards(
-        myCards || []
-    );
-}
-
-
-// ============================================
-// RENDER CARDS
-// ============================================
-
-function renderCards(cards) {
-
-    cardsArea.innerHTML = "";
-
-
-    if (!cards.length) {
-
-        cardsArea.innerHTML = `
-            <div style="
-                color:#aaa;
-                text-align:center;
-                padding:20px;
-            ">
-                Քարտերը բեռնվում են...
-            </div>
-        `;
-
-        return;
-    }
-
-
-    cards.forEach(card => {
-
-        const cardElement =
-            document.createElement(
-                "div"
-            );
-
-
-        cardElement.className =
-            "game-card";
-
-
-        /*
-         * Սրտերը և խաչերը կարմիր։
-         */
 
         if (
-            card.suit === "♥" ||
-            card.suit === "♦"
+            room.turn !==
+            currentPlayer
         ) {
 
-            cardElement.style.color =
-                "#e53950";
+            alert(
+                "Հիմա քո հերթը չէ։"
+            );
 
+            return;
         }
 
 
-        cardElement.innerHTML = `
-            <div style="
-                display:flex;
-                flex-direction:column;
-                align-items:center;
-                justify-content:center;
-                gap:3px;
-                width:100%;
-                height:100%;
-            ">
-                <strong>${card.value}</strong>
-                <span>${card.suit}</span>
-            </div>
-        `;
+        tableMessage.textContent =
+            "KENT! 🎉";
 
 
-        cardsArea.appendChild(
-            cardElement
+        turnMessage.textContent =
+            "Հայտարարվեց KENT";
+
+
+        console.log(
+            "KENT:",
+            selectedCard
         );
+    }
+);
 
-    });
-}
+
+/* ================= STOP ================= */
+
+stopBtn.addEventListener(
+    "click",
+    async () => {
+
+        const snap =
+            await get(
+                ref(
+                    database,
+                    "rooms/" + currentRoom
+                )
+            );
 
 
-// ============================================
-// COPY CODE
-// ============================================
+        if (!snap.exists()) {
+            return;
+        }
 
-async function copyRoomCode() {
 
-    try {
+        const room =
+            snap.val();
+
+
+        if (
+            room.turn ===
+            currentPlayer
+        ) {
+
+            alert(
+                "Քո հերթին STOP չես անում։"
+            );
+
+            return;
+        }
+
+
+        tableMessage.textContent =
+            "STOP! 🛑";
+
+
+        turnMessage.textContent =
+            "STOP հայտարարվեց";
+
+
+        console.log(
+            "STOP"
+        );
+    }
+);
+
+
+/* ================= COPY ================= */
+
+copyBtn.addEventListener(
+    "click",
+    async () => {
 
         await navigator.clipboard.writeText(
-            currentRoomCode
+            currentRoom
         );
 
 
-        copyCodeBtn.textContent =
+        copyBtn.textContent =
             "✅ Պատճենվեց";
 
 
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            copyCodeBtn.textContent =
-                "📋 Պատճենել";
+                copyBtn.textContent =
+                    "📋 Պատճենել";
 
-        }, 1500);
-
-    } catch (error) {
-
-        console.error(
-            "Copy error:",
-            error
+            },
+            1500
         );
     }
-}
+);
 
 
-// ============================================
-// LEAVE
-// ============================================
+/* ================= LEAVE ================= */
 
 async function leaveGame() {
 
-    try {
+    if (
+        currentRoom &&
+        currentPlayer
+    ) {
 
-        if (
-            currentRoomCode &&
-            currentPlayerId
-        ) {
-
-            await remove(
-                ref(
-                    database,
-                    `rooms/${currentRoomCode}/players/${currentPlayerId}`
-                )
-            );
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Leave error:",
-            error
+        await remove(
+            ref(
+                database,
+                `rooms/${currentRoom}/players/${currentPlayer}`
+            )
         );
     }
 
 
-    if (unsubscribeRoom) {
-        unsubscribeRoom();
-        unsubscribeRoom = null;
+    if (roomListener) {
+        roomListener();
+        roomListener = null;
     }
 
 
-    localStorage.removeItem(
-        "kentStopRoomCode"
-    );
-
-    localStorage.removeItem(
-        "kentStopPlayerId"
-    );
-
-    localStorage.removeItem(
-        "kentStopPlayerName"
-    );
+    currentRoom = "";
+    currentPlayer = "";
+    currentName = "";
 
 
-    currentRoomCode = "";
-    currentPlayerId = "";
-    currentPlayerName = "";
-
-
-    showPage(homePage);
+    page(homePage);
 }
 
 
-// ============================================
-// BUTTONS
-// ============================================
-
-createGameBtn.addEventListener(
-    "click",
-    createGame
-);
-
-joinGameBtn.addEventListener(
-    "click",
-    joinGame
-);
-
-startGameBtn.addEventListener(
-    "click",
-    startGame
-);
-
-leaveGameBtn.addEventListener(
+leaveBtn.addEventListener(
     "click",
     leaveGame
 );
 
-copyCodeBtn.addEventListener(
+
+gameLeaveBtn.addEventListener(
     "click",
-    copyRoomCode
+    leaveGame
 );
 
 
-// ============================================
-// ENTER
-// ============================================
+/* ================= INPUT ================= */
 
-nicknameInput.addEventListener(
+roomCode.addEventListener(
+    "input",
+    () => {
+
+        roomCode.value =
+            roomCode.value
+                .toUpperCase()
+                .replace(
+                    /[^A-Z0-9]/g,
+                    ""
+                )
+                .slice(0, 6);
+    }
+);
+
+
+nickname.addEventListener(
     "keydown",
-    event => {
+    e => {
 
-        if (event.key === "Enter") {
+        if (e.key === "Enter") {
             createGame();
         }
 
@@ -1201,11 +1199,11 @@ nicknameInput.addEventListener(
 );
 
 
-roomCodeInput.addEventListener(
+roomCode.addEventListener(
     "keydown",
-    event => {
+    e => {
 
-        if (event.key === "Enter") {
+        if (e.key === "Enter") {
             joinGame();
         }
 
@@ -1213,33 +1211,44 @@ roomCodeInput.addEventListener(
 );
 
 
-// ============================================
-// ROOM CODE INPUT
-// ============================================
+/* ================= BUTTONS ================= */
 
-roomCodeInput.addEventListener(
-    "input",
-    () => {
+createBtn.addEventListener(
+    "click",
+    createGame
+);
 
-        roomCodeInput.value =
-            roomCodeInput.value
-                .toUpperCase()
-                .replace(
-                    /[^A-Z0-9]/g,
-                    ""
-                )
-                .slice(0, 6);
+joinBtn.addEventListener(
+    "click",
+    joinGame
+);
 
-    }
+startBtn.addEventListener(
+    "click",
+    startGame
 );
 
 
-// ============================================
-// START
-// ============================================
+/* ================= SECURITY ================= */
 
-showPage(homePage);
+function escapeHtml(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+}
+
+
+/* ================= INIT ================= */
+
+page(homePage);
 
 console.log(
-    "🎮 Kent Stop Online պատրաստ է!"
+    "🎮 KENT STOP ONLINE READY"
 );
