@@ -1,51 +1,67 @@
-/* ================================
-   KENT STOP ONLINE
-   STYLE.CSS
-================================ */
-
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --bg: #080b12;
-    --bg2: #101522;
-    --panel: #151b29;
-    --panel-light: #1d2535;
-    --gold: #f5c451;
-    --gold-dark: #c89422;
-    --white: #ffffff;
-    --text: #e9edf5;
-    --muted: #8d96a8;
-    --danger: #ff4d67;
-    --green: #43d17a;
-    --blue: #4e8cff;
 }
 
 body {
-    min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     background:
         radial-gradient(
-            circle at top,
-            #202a42 0%,
-            #0d111b 42%,
-            #06080d 100%
+            circle at center,
+            #104b34,
+            #031b12 75%
         );
-    color: var(--text);
-    overflow-x: hidden;
+
+    color: white;
+    min-height: 100vh;
 }
 
 
-/* ================================
-   GENERAL
-================================ */
+/* ================= HEADER ================= */
+
+.topbar {
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 35px;
+
+    background: rgba(0,0,0,.25);
+
+    border-bottom:
+        1px solid rgba(255,255,255,.08);
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.room {
+    color: #aaa;
+}
+
+.room b {
+    color: #ffd43b;
+}
+
+
+/* ================= GENERAL ================= */
 
 .page {
-    min-height: 100vh;
-    width: 100%;
+    min-height:
+        calc(100vh - 70px);
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 25px;
 }
 
 .hidden {
@@ -53,451 +69,186 @@ body {
 }
 
 
-/* ================================
-   HOME PAGE
-================================ */
+/* ================= HOME ================= */
 
-#homePage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px 16px;
-}
+.home-box {
+    width: 400px;
 
-
-/* ================================
-   LOGO
-================================ */
-
-.logo {
-    text-align: center;
-    margin-bottom: 28px;
-}
-
-.logo-icon {
-    width: 76px;
-    height: 76px;
-
-    margin: 0 auto 14px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: linear-gradient(
-        145deg,
-        #ffffff,
-        #d9dce2
-    );
-
-    color: #10131a;
-
-    border-radius: 20px;
-
-    font-size: 38px;
-
-    box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.35);
-}
-
-.logo h1 {
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: 5px;
-    color: var(--white);
-}
-
-.logo h1 span {
-    color: var(--gold);
-}
-
-.logo p {
-    margin-top: 5px;
-    color: var(--muted);
-    letter-spacing: 8px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-
-/* ================================
-   MAIN PANEL
-================================ */
-
-.card-panel {
-    width: 100%;
-    max-width: 430px;
+    padding: 40px;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(30, 38, 55, 0.97),
-            rgba(15, 20, 31, 0.97)
-        );
+        rgba(4,35,25,.95);
 
-    border: 1px solid rgba(255, 255, 255, 0.08);
-
-    border-radius: 24px;
-
-    padding: 30px;
+    border-radius: 25px;
 
     box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.45);
+        0 25px 70px rgba(0,0,0,.45);
 
-    backdrop-filter: blur(15px);
+    text-align: center;
 }
 
-.card-panel h2 {
-    font-size: 24px;
-    text-align: center;
+.home-box h1 {
+    font-size: 42px;
+    letter-spacing: 4px;
 }
 
 .subtitle {
-    text-align: center;
-    color: var(--muted);
-    margin-top: 8px;
-    margin-bottom: 28px;
-}
-
-
-/* ================================
-   INPUTS
-================================ */
-
-label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    color: #b9c1d0;
+    color: #a7b8af;
+    margin: 10px 0 30px;
 }
 
 input {
     width: 100%;
 
-    height: 52px;
+    padding: 15px;
 
-    padding: 0 16px;
+    margin-bottom: 12px;
 
-    margin-bottom: 16px;
-
-    border-radius: 13px;
-
-    border: 1px solid #30394b;
-
+    border: none;
     outline: none;
 
-    background: #0c111b;
+    border-radius: 12px;
+
+    background: #102f23;
 
     color: white;
 
     font-size: 16px;
-
-    transition: 0.2s;
 }
 
 input::placeholder {
-    color: #687286;
+    color: #789083;
 }
-
-input:focus {
-    border-color: var(--gold);
-
-    box-shadow:
-        0 0 0 3px rgba(245, 196, 81, 0.12);
-}
-
-
-/* ================================
-   BUTTONS
-================================ */
 
 button {
     border: none;
     cursor: pointer;
-    font-family: inherit;
-}
-
-.main-btn,
-.secondary-btn {
-    width: 100%;
-
-    min-height: 52px;
-
-    border-radius: 13px;
 
     font-size: 16px;
-
     font-weight: bold;
 
-    transition:
-        transform 0.15s,
-        box-shadow 0.15s,
-        opacity 0.15s;
+    border-radius: 12px;
+
+    padding: 14px 20px;
+
+    transition: .2s;
 }
 
-.main-btn {
-    background:
-        linear-gradient(
-            135deg,
-            #ffd968,
-            #dba82f
-        );
-
-    color: #17120a;
-
-    box-shadow:
-        0 8px 25px rgba(245, 196, 81, 0.2);
-}
-
-.main-btn:hover {
+button:hover {
     transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.primary {
+    width: 100%;
+    background: #ffd34d;
+    color: #101010;
+}
+
+.secondary {
+    width: 100%;
+    background: #315d4b;
+    color: white;
+}
+
+.separator {
+    color: #71867c;
+    margin: 15px;
+}
+
+#errorMessage {
+    min-height: 25px;
+    margin-top: 15px;
+    color: #ff6677;
+}
+
+
+/* ================= LOBBY ================= */
+
+.lobby-box {
+    width: 520px;
+
+    background:
+        rgba(4,35,25,.96);
+
+    border-radius: 25px;
+
+    padding: 35px;
 
     box-shadow:
-        0 12px 30px rgba(245, 196, 81, 0.3);
+        0 25px 70px rgba(0,0,0,.5);
 }
 
-.main-btn:active,
-.secondary-btn:active {
-    transform: scale(0.98);
-}
-
-.secondary-btn {
-    background: #20293a;
-
-    color: var(--white);
-
-    border: 1px solid #344057;
-}
-
-.secondary-btn:hover {
-    background: #283348;
-}
-
-
-/* ================================
-   OR
-================================ */
-
-.or {
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-
-    margin: 22px 0;
-
-    color: #667085;
-
-    font-size: 12px;
-}
-
-.or::before,
-.or::after {
-    content: "";
-
-    flex: 1;
-
-    height: 1px;
-
-    background: #2d3545;
-}
-
-
-/* ================================
-   ERROR
-================================ */
-
-.error-message {
-    min-height: 20px;
-
-    margin-top: 14px;
-
+.lobby-box h1 {
     text-align: center;
-
-    color: var(--danger);
-
-    font-size: 13px;
+    margin-bottom: 25px;
 }
-
-
-/* ================================
-   FOOTER
-================================ */
-
-footer {
-    margin-top: 24px;
-
-    color: #586174;
-
-    font-size: 12px;
-}
-
-
-/* ================================
-   LOBBY
-================================ */
-
-#lobbyPage {
-    padding: 30px 18px;
-}
-
-.lobby-container {
-    width: 100%;
-    max-width: 950px;
-
-    margin: 0 auto;
-}
-
-
-/* ================================
-   LOBBY HEADER
-================================ */
-
-.lobby-header {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 20px;
-
-    margin-bottom: 30px;
-}
-
-.small-title {
-    color: var(--gold);
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 7px;
-}
-
-.lobby-header h1 {
-    font-size: 30px;
-}
-
-
-/* ================================
-   ROOM CODE
-================================ */
 
 .room-code-box {
-    min-width: 180px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 
     padding: 15px;
 
-    text-align: center;
-
-    background: var(--panel);
-
-    border: 1px solid #30394b;
+    background: #0b2d20;
 
     border-radius: 15px;
+
+    margin-bottom: 25px;
 }
 
 .room-code-box span {
-    display: block;
-
-    color: var(--muted);
-
-    font-size: 10px;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 5px;
+    color: #8ca096;
 }
 
 .room-code-box strong {
-    display: block;
+    color: #ffd43b;
+    font-size: 23px;
+    letter-spacing: 4px;
 
-    color: var(--gold);
-
-    font-size: 25px;
-
-    letter-spacing: 5px;
-
-    margin-bottom: 9px;
+    flex: 1;
 }
 
 .room-code-box button {
-    background: transparent;
-
-    color: #aeb7c8;
-
-    font-size: 12px;
+    padding: 9px 12px;
+    background: #274e3e;
+    color: white;
 }
 
-
-/* ================================
-   PLAYERS
-================================ */
-
-.players-section {
-    background: rgba(15, 20, 31, 0.9);
-
-    border: 1px solid #252e40;
-
-    border-radius: 20px;
-
-    padding: 24px;
-
-    margin-bottom: 20px;
-}
-
-.players-section h2 {
+.players-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 
-    font-size: 19px;
-
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
-.players-section h2 span {
-    color: var(--muted);
-
-    font-size: 14px;
+.players-header span {
+    color: #ffd43b;
 }
 
 .players-list {
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 14px;
+    gap: 10px;
 }
 
 .player-card {
     display: flex;
-
     align-items: center;
 
-    gap: 13px;
+    gap: 15px;
 
-    min-height: 75px;
+    background: #0b2d20;
 
-    padding: 12px 15px;
+    padding: 13px;
 
-    background: var(--panel);
-
-    border: 1px solid #2c3547;
-
-    border-radius: 15px;
+    border-radius: 14px;
 }
 
 .player-avatar {
@@ -507,409 +258,313 @@ footer {
     border-radius: 50%;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    background: #242e42;
+    background: #182d26;
 
-    font-size: 21px;
-}
-
-.player-info {
-    min-width: 0;
+    font-size: 23px;
 }
 
 .player-name {
     font-weight: bold;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
 }
 
 .player-status {
-    color: var(--green);
-
-    font-size: 11px;
-
+    color: #7fa18f;
+    font-size: 13px;
     margin-top: 4px;
-}
-
-
-/* ================================
-   LOBBY ACTIONS
-================================ */
-
-.lobby-actions {
-    display: flex;
-
-    gap: 12px;
-}
-
-.lobby-actions .main-btn,
-.lobby-actions .secondary-btn {
-    flex: 1;
 }
 
 .lobby-message {
     text-align: center;
 
-    color: var(--muted);
+    color: #9cb2a7;
 
-    font-size: 13px;
+    padding: 25px 0;
+}
 
-    margin-top: 18px;
+.start-btn {
+    width: 100%;
+
+    background: #ffd34d;
+    color: #111;
+
+    margin-bottom: 10px;
+}
+
+.leave-btn {
+    width: 100%;
+
+    background: #263b32;
+    color: #ddd;
 }
 
 
-/* ================================
-   GAME
-================================ */
-
-#gamePage {
-    background:
-        radial-gradient(
-            circle at center,
-            #164b31 0%,
-            #0d3222 40%,
-            #06150e 100%
-        );
-
-    min-height: 100vh;
-}
-
-.game-container {
-    min-height: 100vh;
-
-    display: flex;
-
-    flex-direction: column;
-}
-
-
-/* ================================
-   GAME HEADER
-================================ */
-
-.game-header {
-    height: 65px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    padding: 0 22px;
-
-    background: rgba(0, 0, 0, 0.25);
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.game-logo {
-    font-size: 20px;
-
-    font-weight: 900;
-
-    letter-spacing: 2px;
-}
-
-.game-room {
-    font-size: 12px;
-
-    color: #b7c7bd;
-}
-
-.game-room strong {
-    color: var(--gold);
-}
-
-
-/* ================================
-   GAME TABLE
-================================ */
+/* ================= GAME ================= */
 
 .game-table {
-    flex: 1;
-
     position: relative;
 
+    width: min(1100px, 96vw);
+
+    min-height: 700px;
+
+    border-radius: 40px;
+
+    background:
+        radial-gradient(
+            circle,
+            #105538,
+            #06301f
+        );
+
+    border:
+        2px solid rgba(255,255,255,.07);
+
+    box-shadow:
+        inset 0 0 100px rgba(0,0,0,.2),
+        0 25px 70px rgba(0,0,0,.45);
+
+    padding: 25px;
+}
+
+.game-info {
     display: flex;
-
-    flex-direction: column;
-
     justify-content: space-between;
 
-    padding: 30px 20px 10px;
+    color: #a5b8ae;
 }
 
-.opponent-area {
-    display: flex;
+.game-info b {
+    color: #ffd43b;
+}
 
+
+/* ================= PLAYERS ================= */
+
+.game-players {
+    display: flex;
     justify-content: center;
 
-    gap: 40px;
+    gap: 100px;
+
+    margin-top: 30px;
 }
 
-.opponent-area.bottom {
-    margin-top: 20px;
-}
-
-.player-seat {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    gap: 7px;
-
-    color: #dce6df;
-
-    font-size: 12px;
-}
-
-.avatar {
-    width: 50px;
-    height: 50px;
-
-    border-radius: 50%;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    background: #18251e;
-
-    border: 2px solid rgba(255,255,255,0.12);
-
-    font-size: 22px;
-}
-
-.center-table {
-    flex: 1;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-}
-
-.table-message {
-    padding: 18px 25px;
-
-    border-radius: 15px;
-
-    background: rgba(0, 0, 0, 0.2);
-
-    color: #a9b9ae;
-
+.game-player {
     text-align: center;
 }
 
+.game-player-avatar {
+    width: 55px;
+    height: 55px;
 
-/* ================================
-   CARDS AREA
-================================ */
+    border-radius: 50%;
 
-.cards-area {
-    min-height: 130px;
+    margin: auto;
 
     display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #172c25;
+
+    font-size: 28px;
+
+    border: 2px solid transparent;
+}
+
+.game-player.active
+.game-player-avatar {
+    border-color: #ffd43b;
+
+    box-shadow:
+        0 0 20px
+        rgba(255,212,59,.5);
+}
+
+.game-player-name {
+    margin-top: 8px;
+}
+
+.game-player-turn {
+    color: #ffd43b;
+    font-size: 12px;
+}
+
+
+/* ================= CENTER ================= */
+
+.center-area {
+    height: 260px;
+
+    display: flex;
+
+    flex-direction: column;
 
     align-items: center;
 
     justify-content: center;
 
-    gap: 8px;
+    gap: 15px;
+}
 
-    padding: 10px 15px;
+.table-message {
+    padding: 18px 35px;
 
-    overflow-x: auto;
+    border-radius: 18px;
+
+    background:
+        rgba(0,0,0,.22);
+
+    color: #dce9e3;
+
+    font-size: 19px;
+}
+
+.turn-message {
+    color: #ffd43b;
+
+    font-weight: bold;
 }
 
 
-/* Քարտի ապագա դիզայն */
+/* ================= CARDS ================= */
+
+.my-hand {
+    text-align: center;
+}
+
+.hand-title {
+    color: #91a99d;
+    margin-bottom: 12px;
+}
+
+.cards-area {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 14px;
+}
 
 .game-card {
-    flex: 0 0 auto;
-
-    width: 70px;
-    height: 100px;
+    width: 90px;
+    height: 125px;
 
     background: white;
 
     color: #111;
 
-    border-radius: 9px;
-
-    border: 2px solid #ddd;
-
-    box-shadow:
-        0 8px 20px rgba(0,0,0,0.25);
+    border-radius: 12px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     font-size: 28px;
 
-    transition: 0.2s;
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.35);
+
+    cursor: pointer;
+
+    user-select: none;
+
+    transition: .2s;
 }
 
 .game-card:hover {
-    transform: translateY(-10px);
+    transform:
+        translateY(-12px);
+}
+
+.game-card.selected {
+    transform:
+        translateY(-20px);
+
+    outline:
+        4px solid #ffd43b;
 }
 
 
-/* ================================
-   GAME BUTTONS
-================================ */
+/* ================= ACTIONS ================= */
 
-.game-buttons {
+.actions {
     display: flex;
 
     justify-content: center;
 
-    gap: 12px;
+    gap: 15px;
 
-    padding: 12px 20px 25px;
-}
-
-.kent-btn,
-.stop-btn {
-    min-width: 130px;
-
-    min-height: 50px;
-
-    border-radius: 13px;
-
-    font-weight: 900;
-
-    font-size: 17px;
+    margin-top: 20px;
 }
 
 .kent-btn {
-    background: var(--gold);
+    background: #ffd34d;
+    color: #111;
 
-    color: #17120a;
+    min-width: 150px;
 }
 
 .stop-btn {
-    background: var(--danger);
-
+    background: #ff4d68;
     color: white;
+
+    min-width: 150px;
+}
+
+.game-leave {
+    position: absolute;
+
+    bottom: 20px;
+    left: 20px;
+
+    background: #203d31;
+    color: #bbb;
+
+    padding: 9px 14px;
 }
 
 
-/* ================================
-   MOBILE
-================================ */
+/* ================= MOBILE ================= */
 
-@media (max-width: 650px) {
+@media (max-width: 700px) {
 
-    .logo h1 {
-        font-size: 34px;
-
-        letter-spacing: 3px;
+    .topbar {
+        padding: 0 15px;
     }
 
-    .logo-icon {
-        width: 65px;
-        height: 65px;
-
-        font-size: 32px;
+    .logo {
+        font-size: 17px;
     }
 
-    .card-panel {
-        padding: 24px 20px;
-
-        border-radius: 20px;
-    }
-
-    .lobby-header {
-        flex-direction: column;
-
-        align-items: stretch;
-    }
-
-    .lobby-header h1 {
-        font-size: 24px;
-    }
-
-    .room-code-box {
+    .home-box,
+    .lobby-box {
         width: 100%;
+        padding: 25px;
     }
 
-    .players-list {
-        grid-template-columns: 1fr;
+    .game-table {
+        min-height: 600px;
     }
 
-    .lobby-actions {
-        flex-direction: column;
+    .game-players {
+        gap: 30px;
     }
 
-    .game-header {
-        padding: 0 12px;
-    }
-
-    .game-logo {
-        font-size: 16px;
-    }
-
-    .opponent-area {
-        gap: 25px;
+    .center-area {
+        height: 210px;
     }
 
     .game-card {
-        width: 60px;
-        height: 88px;
+        width: 65px;
+        height: 95px;
+        font-size: 22px;
     }
 
-    .kent-btn,
-    .stop-btn {
-        min-width: 110px;
-    }
-}
-
-
-/* ================================
-   SMALL PHONES
-================================ */
-
-@media (max-width: 400px) {
-
-    .card-panel {
-        padding: 20px 16px;
-    }
-
-    .logo h1 {
-        font-size: 29px;
-    }
-
-    .opponent-area {
-        gap: 15px;
-    }
-
-    .avatar {
-        width: 43px;
-        height: 43px;
-    }
-
-    .game-buttons {
-        padding-bottom: 18px;
-    }
-
-    .kent-btn,
-    .stop-btn {
-        min-width: 100px;
-        font-size: 15px;
+    .actions button {
+        min-width: 120px;
     }
 }
