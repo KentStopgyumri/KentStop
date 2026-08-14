@@ -1,6 +1,6 @@
 // ============================================
 // KENT STOP ONLINE
-// app.js
+// app.js — Card Dealing Version
 // ============================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -31,14 +31,14 @@ const firebaseConfig = {
     measurementId: "G-TCTYQQYM4P"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const database = getDatabase(firebaseApp);
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-console.log("🔥 Kent Stop Firebase-ը միացված է!");
+console.log("🔥 Kent Stop Firebase-ը միացված է");
 
 
 // ============================================
-// ELEMENTS
+// DOM
 // ============================================
 
 const homePage = document.getElementById("homePage");
@@ -53,18 +53,35 @@ const joinGameBtn = document.getElementById("joinGameBtn");
 
 const errorMessage = document.getElementById("errorMessage");
 
-const displayRoomCode = document.getElementById("displayRoomCode");
-const gameRoomCode = document.getElementById("gameRoomCode");
+const displayRoomCode =
+    document.getElementById("displayRoomCode");
 
-const playersList = document.getElementById("playersList");
-const playerCount = document.getElementById("playerCount");
+const gameRoomCode =
+    document.getElementById("gameRoomCode");
 
-const copyCodeBtn = document.getElementById("copyCodeBtn");
-const startGameBtn = document.getElementById("startGameBtn");
-const leaveGameBtn = document.getElementById("leaveGameBtn");
+const playersList =
+    document.getElementById("playersList");
 
-const lobbyMessage = document.getElementById("lobbyMessage");
-const myPlayerName = document.getElementById("myPlayerName");
+const playerCount =
+    document.getElementById("playerCount");
+
+const copyCodeBtn =
+    document.getElementById("copyCodeBtn");
+
+const startGameBtn =
+    document.getElementById("startGameBtn");
+
+const leaveGameBtn =
+    document.getElementById("leaveGameBtn");
+
+const lobbyMessage =
+    document.getElementById("lobbyMessage");
+
+const myPlayerName =
+    document.getElementById("myPlayerName");
+
+const cardsArea =
+    document.getElementById("cardsArea");
 
 
 // ============================================
@@ -79,10 +96,131 @@ let unsubscribeRoom = null;
 
 
 // ============================================
-// HELPERS
+// CARD DECK
+// ============================================
+
+const suits = [
+    "♠",
+    "♥",
+    "♦",
+    "♣"
+];
+
+const values = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K"
+];
+
+
+function createDeck() {
+
+    const deck = [];
+
+    for (const suit of suits) {
+
+        for (const value of values) {
+
+            deck.push({
+                id: `${value}${suit}`,
+                suit: suit,
+                value: value
+            });
+
+        }
+    }
+
+    return deck;
+}
+
+
+// ============================================
+// SHUFFLE
+// ============================================
+
+function shuffleDeck(deck) {
+
+    const shuffled = [...deck];
+
+    for (
+        let i = shuffled.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            shuffled[i],
+            shuffled[j]
+        ] = [
+            shuffled[j],
+            shuffled[i]
+        ];
+    }
+
+    return shuffled;
+}
+
+
+// ============================================
+// GENERATE PLAYER ID
+// ============================================
+
+function generatePlayerId() {
+
+    return (
+        "player_" +
+        crypto.randomUUID()
+    );
+}
+
+
+// ============================================
+// GENERATE ROOM CODE
+// ============================================
+
+function generateRoomCode() {
+
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let code = "";
+
+    for (let i = 0; i < 6; i++) {
+
+        code += chars[
+            Math.floor(
+                Math.random() *
+                chars.length
+            )
+        ];
+
+    }
+
+    return code;
+}
+
+
+// ============================================
+// PAGE
 // ============================================
 
 function showPage(page) {
+
     homePage.classList.add("hidden");
     lobbyPage.classList.add("hidden");
     gamePage.classList.add("hidden");
@@ -91,254 +229,53 @@ function showPage(page) {
 }
 
 
+// ============================================
+// ERROR
+// ============================================
+
 function showError(message) {
-    errorMessage.textContent = message;
+
+    errorMessage.textContent =
+        message;
 }
 
 
 function clearError() {
+
     errorMessage.textContent = "";
 }
 
 
-function generatePlayerId() {
-    return "player_" + crypto.randomUUID();
-}
-
-
-function generateRoomCode() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-    let code = "";
-
-    for (let i = 0; i < 6; i++) {
-        code += chars[Math.floor(Math.random() * chars.length)];
-    }
-
-    return code;
-}
-
+// ============================================
+// NICKNAME
+// ============================================
 
 function getNickname() {
-    const nickname = nicknameInput.value.trim();
+
+    const nickname =
+        nicknameInput.value.trim();
 
     if (!nickname) {
-        showError("Գրիր քո մականունը։");
+
+        showError(
+            "Գրիր քո մականունը։"
+        );
+
         nicknameInput.focus();
+
         return null;
     }
 
     if (nickname.length < 2) {
-        showError("Մականունը պետք է լինի առնվազն 2 նիշ։");
+
+        showError(
+            "Մականունը պետք է լինի առնվազն 2 նիշ։"
+        );
+
         return null;
     }
 
     return nickname;
-}
-
-
-// ============================================
-// CREATE GAME
-// ============================================
-
-async function createGame() {
-
-    clearError();
-
-    const nickname = getNickname();
-
-    if (!nickname) return;
-
-    createGameBtn.disabled = true;
-    createGameBtn.textContent = "⏳ Ստեղծվում է...";
-
-    try {
-
-        let roomCode = "";
-
-        // Գտնում ենք ազատ room code
-        for (let i = 0; i < 10; i++) {
-
-            const testCode = generateRoomCode();
-
-            const roomSnapshot = await get(
-                ref(database, `rooms/${testCode}`)
-            );
-
-            if (!roomSnapshot.exists()) {
-                roomCode = testCode;
-                break;
-            }
-        }
-
-        if (!roomCode) {
-            throw new Error("Չհաջողվեց ստեղծել room code");
-        }
-
-
-        currentRoomCode = roomCode;
-        currentPlayerId = generatePlayerId();
-        currentPlayerName = nickname;
-
-
-        const roomData = {
-            status: "waiting",
-            hostId: currentPlayerId,
-            createdAt: Date.now(),
-
-            players: {
-                [currentPlayerId]: {
-                    id: currentPlayerId,
-                    name: currentPlayerName,
-                    ready: true,
-                    joinedAt: Date.now()
-                }
-            }
-        };
-
-
-        await set(
-            ref(database, `rooms/${roomCode}`),
-            roomData
-        );
-
-
-        saveSession();
-
-        console.log("✅ Խաղը ստեղծվեց:", roomCode);
-
-        openLobby();
-
-    } catch (error) {
-
-        console.error("❌ Create Game Error:", error);
-
-        showError(
-            "Խաղը ստեղծել չհաջողվեց։ Ստուգիր Firebase Database Rules-ը։"
-        );
-
-    } finally {
-
-        createGameBtn.disabled = false;
-        createGameBtn.textContent = "🏠 Ստեղծել խաղ";
-    }
-}
-
-
-// ============================================
-// JOIN GAME
-// ============================================
-
-async function joinGame() {
-
-    clearError();
-
-    const nickname = getNickname();
-
-    if (!nickname) return;
-
-
-    const roomCode = roomCodeInput.value
-        .trim()
-        .toUpperCase();
-
-
-    if (roomCode.length !== 6) {
-
-        showError("Գրիր ճիշտ 6 նիշանոց խաղի կոդը։");
-
-        roomCodeInput.focus();
-
-        return;
-    }
-
-
-    joinGameBtn.disabled = true;
-    joinGameBtn.textContent = "⏳ Միանում է...";
-
-
-    try {
-
-        const roomRef =
-            ref(database, `rooms/${roomCode}`);
-
-        const snapshot =
-            await get(roomRef);
-
-
-        if (!snapshot.exists()) {
-
-            showError("❌ Այդ կոդով խաղ չի գտնվել։");
-
-            return;
-        }
-
-
-        const room = snapshot.val();
-
-
-        if (room.status !== "waiting") {
-
-            showError("❌ Այս խաղն արդեն սկսվել է։");
-
-            return;
-        }
-
-
-        const players =
-            room.players || {};
-
-        const playerArray =
-            Object.values(players);
-
-
-        if (playerArray.length >= 4) {
-
-            showError("❌ Խաղասենյակը լիքն է։");
-
-            return;
-        }
-
-
-        currentRoomCode = roomCode;
-        currentPlayerId = generatePlayerId();
-        currentPlayerName = nickname;
-
-
-        await set(
-            ref(
-                database,
-                `rooms/${roomCode}/players/${currentPlayerId}`
-            ),
-            {
-                id: currentPlayerId,
-                name: currentPlayerName,
-                ready: true,
-                joinedAt: Date.now()
-            }
-        );
-
-
-        saveSession();
-
-        console.log("✅ Միացանք խաղին:", roomCode);
-
-        openLobby();
-
-
-    } catch (error) {
-
-        console.error("❌ Join Game Error:", error);
-
-        showError(
-            "Միանալ չհաջողվեց։ Ստուգիր Firebase Database Rules-ը։"
-        );
-
-    } finally {
-
-        joinGameBtn.disabled = false;
-        joinGameBtn.textContent = "🔑 Միանալ խաղին";
-    }
 }
 
 
@@ -366,6 +303,281 @@ function saveSession() {
 
 
 // ============================================
+// CREATE GAME
+// ============================================
+
+async function createGame() {
+
+    clearError();
+
+    const nickname =
+        getNickname();
+
+    if (!nickname) return;
+
+    createGameBtn.disabled = true;
+    createGameBtn.textContent =
+        "⏳ Ստեղծվում է...";
+
+    try {
+
+        let roomCode = "";
+
+        for (let i = 0; i < 10; i++) {
+
+            const testCode =
+                generateRoomCode();
+
+            const snapshot =
+                await get(
+                    ref(
+                        database,
+                        `rooms/${testCode}`
+                    )
+                );
+
+            if (!snapshot.exists()) {
+
+                roomCode = testCode;
+
+                break;
+            }
+        }
+
+        if (!roomCode) {
+            throw new Error(
+                "Room code creation failed"
+            );
+        }
+
+
+        currentRoomCode =
+            roomCode;
+
+        currentPlayerId =
+            generatePlayerId();
+
+        currentPlayerName =
+            nickname;
+
+
+        const roomData = {
+
+            status: "waiting",
+
+            hostId:
+                currentPlayerId,
+
+            createdAt:
+                Date.now(),
+
+            players: {
+
+                [currentPlayerId]: {
+
+                    id:
+                        currentPlayerId,
+
+                    name:
+                        currentPlayerName,
+
+                    ready:
+                        true,
+
+                    joinedAt:
+                        Date.now()
+
+                }
+
+            }
+
+        };
+
+
+        await set(
+            ref(
+                database,
+                `rooms/${roomCode}`
+            ),
+            roomData
+        );
+
+
+        saveSession();
+
+        openLobby();
+
+    } catch (error) {
+
+        console.error(
+            "Create game error:",
+            error
+        );
+
+        showError(
+            "Խաղը ստեղծել չհաջողվեց։"
+        );
+
+    } finally {
+
+        createGameBtn.disabled =
+            false;
+
+        createGameBtn.textContent =
+            "🏠 Ստեղծել խաղ";
+    }
+}
+
+
+// ============================================
+// JOIN GAME
+// ============================================
+
+async function joinGame() {
+
+    clearError();
+
+    const nickname =
+        getNickname();
+
+    if (!nickname) return;
+
+
+    const roomCode =
+        roomCodeInput.value
+            .trim()
+            .toUpperCase();
+
+
+    if (roomCode.length !== 6) {
+
+        showError(
+            "Գրիր 6 նիշանոց խաղի կոդը։"
+        );
+
+        return;
+    }
+
+
+    joinGameBtn.disabled = true;
+
+    joinGameBtn.textContent =
+        "⏳ Միանում է...";
+
+
+    try {
+
+        const roomRef =
+            ref(
+                database,
+                `rooms/${roomCode}`
+            );
+
+
+        const snapshot =
+            await get(roomRef);
+
+
+        if (!snapshot.exists()) {
+
+            showError(
+                "❌ Այդ խաղը չի գտնվել։"
+            );
+
+            return;
+        }
+
+
+        const room =
+            snapshot.val();
+
+
+        if (room.status !== "waiting") {
+
+            showError(
+                "❌ Խաղն արդեն սկսվել է։"
+            );
+
+            return;
+        }
+
+
+        const players =
+            Object.values(
+                room.players || {}
+            );
+
+
+        if (players.length >= 4) {
+
+            showError(
+                "❌ Խաղը լիքն է։"
+            );
+
+            return;
+        }
+
+
+        currentRoomCode =
+            roomCode;
+
+        currentPlayerId =
+            generatePlayerId();
+
+        currentPlayerName =
+            nickname;
+
+
+        await set(
+            ref(
+                database,
+                `rooms/${roomCode}/players/${currentPlayerId}`
+            ),
+            {
+
+                id:
+                    currentPlayerId,
+
+                name:
+                    currentPlayerName,
+
+                ready:
+                    true,
+
+                joinedAt:
+                    Date.now()
+
+            }
+        );
+
+
+        saveSession();
+
+        openLobby();
+
+    } catch (error) {
+
+        console.error(
+            "Join game error:",
+            error
+        );
+
+        showError(
+            "Միանալ չհաջողվեց։"
+        );
+
+    } finally {
+
+        joinGameBtn.disabled =
+            false;
+
+        joinGameBtn.textContent =
+            "🔑 Միանալ խաղին";
+    }
+}
+
+
+// ============================================
 // OPEN LOBBY
 // ============================================
 
@@ -387,58 +599,57 @@ function openLobby() {
 
 
 // ============================================
-// LISTEN TO ROOM
+// LISTEN ROOM
 // ============================================
 
 function listenToRoom() {
 
     if (unsubscribeRoom) {
         unsubscribeRoom();
-        unsubscribeRoom = null;
     }
 
 
     const roomRef =
-        ref(database, `rooms/${currentRoomCode}`);
+        ref(
+            database,
+            `rooms/${currentRoomCode}`
+        );
 
 
-    unsubscribeRoom = onValue(
-        roomRef,
-        (snapshot) => {
+    unsubscribeRoom =
+        onValue(
+            roomRef,
+            snapshot => {
 
-            if (!snapshot.exists()) {
+                if (!snapshot.exists()) {
 
-                if (unsubscribeRoom) {
-                    unsubscribeRoom();
+                    showPage(homePage);
+
+                    showError(
+                        "Խաղասենյակը փակվել է։"
+                    );
+
+                    return;
                 }
 
-                showPage(homePage);
 
-                showError("Խաղասենյակը փակվել է։");
+                const room =
+                    snapshot.val();
 
-                return;
+
+                updateLobby(room);
+
+
+                if (
+                    room.status ===
+                    "playing"
+                ) {
+
+                    showGame(room);
+                }
+
             }
-
-
-            const room = snapshot.val();
-
-            updateLobby(room);
-
-
-            if (room.status === "playing") {
-                openGame();
-            }
-
-        },
-        (error) => {
-
-            console.error(
-                "❌ Firebase listener error:",
-                error
-            );
-
-        }
-    );
+        );
 }
 
 
@@ -449,95 +660,212 @@ function listenToRoom() {
 function updateLobby(room) {
 
     const players =
-        room.players || {};
-
-    const playerArray =
-        Object.values(players);
+        Object.values(
+            room.players || {}
+        );
 
 
     playerCount.textContent =
-        `${playerArray.length}/4`;
+        `${players.length}/4`;
 
 
-    playersList.innerHTML = "";
+    playersList.innerHTML =
+        "";
 
 
-    playerArray.forEach((player, index) => {
+    players.forEach(
+        (player, index) => {
 
-        const card =
-            document.createElement("div");
+            const card =
+                document.createElement(
+                    "div"
+                );
 
-        card.className = "player-card";
-
-
-        const avatar =
-            document.createElement("div");
-
-        avatar.className = "player-avatar";
-
-        avatar.textContent =
-            index === 0 ? "👑" : "👤";
+            card.className =
+                "player-card";
 
 
-        const info =
-            document.createElement("div");
+            const avatar =
+                document.createElement(
+                    "div"
+                );
 
-        info.className = "player-info";
+            avatar.className =
+                "player-avatar";
 
-
-        const name =
-            document.createElement("div");
-
-        name.className = "player-name";
-
-        name.textContent = player.name;
-
-
-        const status =
-            document.createElement("div");
-
-        status.className = "player-status";
-
-        status.textContent =
-            index === 0
-                ? "Ստեղծող"
-                : "Միացած է";
+            avatar.textContent =
+                index === 0
+                    ? "👑"
+                    : "👤";
 
 
-        info.appendChild(name);
-        info.appendChild(status);
+            const info =
+                document.createElement(
+                    "div"
+                );
 
-        card.appendChild(avatar);
-        card.appendChild(info);
+            info.className =
+                "player-info";
 
-        playersList.appendChild(card);
 
-    });
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "player-name";
+
+            name.textContent =
+                player.name;
+
+
+            const status =
+                document.createElement(
+                    "div"
+                );
+
+            status.className =
+                "player-status";
+
+            status.textContent =
+                index === 0
+                    ? "Ստեղծող"
+                    : "Միացած է";
+
+
+            info.appendChild(name);
+            info.appendChild(status);
+
+            card.appendChild(avatar);
+            card.appendChild(info);
+
+            playersList.appendChild(card);
+
+        }
+    );
 
 
     const isHost =
-        room.hostId === currentPlayerId;
+        room.hostId ===
+        currentPlayerId;
 
 
     startGameBtn.style.display =
-        isHost ? "block" : "none";
+        isHost
+            ? "block"
+            : "none";
 
 
-    if (playerArray.length < 4) {
+    if (players.length < 4) {
 
         lobbyMessage.textContent =
-            `Սպասում ենք խաղացողներին... ${playerArray.length}/4`;
+            `Սպասում ենք խաղացողներին... ${players.length}/4`;
 
-        startGameBtn.disabled = true;
+        startGameBtn.disabled =
+            true;
 
     } else {
 
         lobbyMessage.textContent =
-            "🔥 Բոլոր 4 խաղացողները պատրաստ են։";
+            "🔥 Բոլոր 4 խաղացողները միացել են։";
 
-        startGameBtn.disabled = false;
-
+        startGameBtn.disabled =
+            false;
     }
+}
+
+
+// ============================================
+// DEAL CARDS
+// ============================================
+
+async function dealCards(room) {
+
+    const players =
+        Object.values(
+            room.players || {}
+        );
+
+
+    if (players.length !== 4) {
+
+        console.log(
+            "Քարտերը չեն բաժանվել․ պետք է 4 խաղացող։"
+        );
+
+        return;
+    }
+
+
+    /*
+     * Միայն host-ն է բաժանում քարտերը։
+     */
+
+    if (
+        room.hostId !==
+        currentPlayerId
+    ) {
+
+        return;
+    }
+
+
+    /*
+     * Եթե քարտերը արդեն բաժանված են,
+     * նորից չենք բաժանում։
+     */
+
+    if (room.hands) {
+
+        return;
+    }
+
+
+    const deck =
+        shuffleDeck(
+            createDeck()
+        );
+
+
+    const hands = {};
+
+
+    players.forEach(
+        (player, index) => {
+
+            hands[player.id] =
+                deck.slice(
+                    index * 4,
+                    index * 4 + 4
+                );
+
+        }
+    );
+
+
+    /*
+     * Պահում ենք քարտերը Firebase-ում։
+     */
+
+    await update(
+        ref(
+            database,
+            `rooms/${currentRoomCode}`
+        ),
+        {
+            hands: hands,
+            deckRemaining:
+                deck.slice(16),
+            cardsDealtAt:
+                Date.now()
+        }
+    );
+
+
+    console.log(
+        "🃏 Քարտերը բաժանվեցին!"
+    );
 }
 
 
@@ -550,7 +878,10 @@ async function startGame() {
     try {
 
         const roomRef =
-            ref(database, `rooms/${currentRoomCode}`);
+            ref(
+                database,
+                `rooms/${currentRoomCode}`
+            );
 
 
         const snapshot =
@@ -562,48 +893,60 @@ async function startGame() {
         }
 
 
-        const room = snapshot.val();
+        const room =
+            snapshot.val();
+
+
+        const players =
+            Object.values(
+                room.players || {}
+            );
 
 
         if (room.hostId !== currentPlayerId) {
 
             alert(
-                "Միայն խաղի ստեղծողը կարող է սկսել խաղը։"
+                "Միայն ստեղծողը կարող է սկսել խաղը։"
             );
 
             return;
         }
-
-
-        const players =
-            Object.values(room.players || {});
 
 
         if (players.length !== 4) {
 
             alert(
-                "Խաղը սկսելու համար պետք է 4 խաղացող։"
+                "Պետք է լինի 4 խաղացող։"
             );
 
             return;
         }
 
 
+        /*
+         * Նախ բաժանում ենք քարտերը։
+         */
+
+        await dealCards(room);
+
+
+        /*
+         * Հետո փոխում ենք խաղի վիճակը։
+         */
+
         await update(
             roomRef,
             {
-                status: "playing",
-                startedAt: Date.now()
+                status:
+                    "playing"
             }
         );
 
 
-        console.log("🎮 Խաղը սկսվեց!");
-
     } catch (error) {
 
         console.error(
-            "❌ Start Game Error:",
+            "Start game error:",
             error
         );
 
@@ -615,10 +958,10 @@ async function startGame() {
 
 
 // ============================================
-// OPEN GAME
+// SHOW GAME
 // ============================================
 
-function openGame() {
+function showGame(room) {
 
     showPage(gamePage);
 
@@ -627,17 +970,104 @@ function openGame() {
 
     myPlayerName.textContent =
         currentPlayerName;
+
+
+    /*
+     * Գտնում ենք մեր քարտերը։
+     */
+
+    const myCards =
+        room.hands &&
+        room.hands[currentPlayerId];
+
+
+    renderCards(
+        myCards || []
+    );
 }
 
 
 // ============================================
-// COPY ROOM CODE
+// RENDER CARDS
+// ============================================
+
+function renderCards(cards) {
+
+    cardsArea.innerHTML = "";
+
+
+    if (!cards.length) {
+
+        cardsArea.innerHTML = `
+            <div style="
+                color:#aaa;
+                text-align:center;
+                padding:20px;
+            ">
+                Քարտերը բեռնվում են...
+            </div>
+        `;
+
+        return;
+    }
+
+
+    cards.forEach(card => {
+
+        const cardElement =
+            document.createElement(
+                "div"
+            );
+
+
+        cardElement.className =
+            "game-card";
+
+
+        /*
+         * Սրտերը և խաչերը կարմիր։
+         */
+
+        if (
+            card.suit === "♥" ||
+            card.suit === "♦"
+        ) {
+
+            cardElement.style.color =
+                "#e53950";
+
+        }
+
+
+        cardElement.innerHTML = `
+            <div style="
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                justify-content:center;
+                gap:3px;
+                width:100%;
+                height:100%;
+            ">
+                <strong>${card.value}</strong>
+                <span>${card.suit}</span>
+            </div>
+        `;
+
+
+        cardsArea.appendChild(
+            cardElement
+        );
+
+    });
+}
+
+
+// ============================================
+// COPY CODE
 // ============================================
 
 async function copyRoomCode() {
-
-    if (!currentRoomCode) return;
-
 
     try {
 
@@ -657,20 +1087,18 @@ async function copyRoomCode() {
 
         }, 1500);
 
-
     } catch (error) {
 
         console.error(
             "Copy error:",
             error
         );
-
     }
 }
 
 
 // ============================================
-// LEAVE GAME
+// LEAVE
 // ============================================
 
 async function leaveGame() {
@@ -696,7 +1124,6 @@ async function leaveGame() {
             "Leave error:",
             error
         );
-
     }
 
 
@@ -725,8 +1152,6 @@ async function leaveGame() {
 
 
     showPage(homePage);
-
-    clearError();
 }
 
 
@@ -739,24 +1164,20 @@ createGameBtn.addEventListener(
     createGame
 );
 
-
 joinGameBtn.addEventListener(
     "click",
     joinGame
 );
-
 
 startGameBtn.addEventListener(
     "click",
     startGame
 );
 
-
 leaveGameBtn.addEventListener(
     "click",
     leaveGame
 );
-
 
 copyCodeBtn.addEventListener(
     "click",
@@ -765,12 +1186,12 @@ copyCodeBtn.addEventListener(
 
 
 // ============================================
-// ENTER KEY
+// ENTER
 // ============================================
 
 nicknameInput.addEventListener(
     "keydown",
-    (event) => {
+    event => {
 
         if (event.key === "Enter") {
             createGame();
@@ -782,7 +1203,7 @@ nicknameInput.addEventListener(
 
 roomCodeInput.addEventListener(
     "keydown",
-    (event) => {
+    event => {
 
         if (event.key === "Enter") {
             joinGame();
@@ -803,7 +1224,10 @@ roomCodeInput.addEventListener(
         roomCodeInput.value =
             roomCodeInput.value
                 .toUpperCase()
-                .replace(/[^A-Z0-9]/g, "")
+                .replace(
+                    /[^A-Z0-9]/g,
+                    ""
+                )
                 .slice(0, 6);
 
     }
@@ -811,7 +1235,7 @@ roomCodeInput.addEventListener(
 
 
 // ============================================
-// INITIAL STATE
+// START
 // ============================================
 
 showPage(homePage);
