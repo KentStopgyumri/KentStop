@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kent Stop Online</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Գլխավոր էջ -->
+    <main id="homePage" class="page">
+
+        <div class="logo">
+            <div class="logo-icon">🃏</div>
+            <h1>KENT <span>STOP</span></h1>
+            <p>ONLINE</p>
+        </div>
+
+        <div class="card-panel">
+
+            <h2>Բարի գալուստ 👋</h2>
+
+            <p class="subtitle">
+                Խաղա ընկերներիդ հետ առցանց
+            </p>
+
+            <label for="nickname">Քո մականունը</label>
+
+            <input
+                type="text"
+                id="nickname"
+                maxlength="16"
+                placeholder="Գրիր մականունդ"
+                autocomplete="off"
+            >
+
+            <button id="createGameBtn" class="main-btn">
+                🏠 Ստեղծել խաղ
+            </button>
+
+            <div class="or">
+                <span>կամ</span>
+            </div>
+
+            <label for="roomCode">Խաղի կոդը</label>
+
+            <input
+                type="text"
+                id="roomCode"
+                maxlength="6"
+                placeholder="Օր․ A7K29P"
+                autocomplete="off"
+            >
+
+            <button id="joinGameBtn" class="secondary-btn">
+                🔑 Միանալ խաղին
+            </button>
+
+            <p id="errorMessage" class="error-message"></p>
+
+        </div>
+
+        <footer>
+            Kent Stop Online © 2026
+        </footer>
+
+    </main>
+
+
+    <!-- Lobby -->
+    <main id="lobbyPage" class="page hidden">
+
+        <div class="lobby-container">
+
+            <div class="lobby-header">
+
+                <div>
+                    <p class="small-title">ԽԱՂԻ ՍԵՆՅԱԿ</p>
+
+                    <h1>
+                        Սպասում ենք խաղացողներին
+                    </h1>
+                </div>
+
+                <div class="room-code-box">
+
+                    <span>ԽԱՂԻ ԿՈԴ</span>
+
+                    <strong id="displayRoomCode">
+                        ------
+                    </strong>
+
+                    <button id="copyCodeBtn">
+                        📋 Պատճենել
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="players-section">
+
+                <h2>
+                    Խաղացողներ
+                    <span id="playerCount">0/4</span>
+                </h2>
+
+                <div id="playersList" class="players-list">
+
+                    <!-- Խաղացողները կավելացվեն JavaScript-ով -->
+
+                </div>
+
+            </div>
+
+
+            <div class="lobby-actions">
+
+                <button id="startGameBtn" class="main-btn">
+                    🎮 Սկսել խաղը
+                </button>
+
+                <button id="leaveGameBtn" class="secondary-btn">
+                    ← Դուրս գալ
+                </button>
+
+            </div>
+
+            <p id="lobbyMessage" class="lobby-message">
+                Սպասում ենք մյուս խաղացողներին...
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- Խաղի էջ -->
+    <main id="gamePage" class="page hidden">
+
+        <div class="game-container">
+
+            <header class="game-header">
+
+                <div class="game-logo">
+                    🃏 KENT STOP
+                </div>
+
+                <div class="game-room">
+                    Room:
+                    <strong id="gameRoomCode">------</strong>
+                </div>
+
+            </header>
+
+
+            <section class="game-table">
+
+                <div class="opponent-area">
+
+                    <div class="player-seat">
+                        <div class="avatar">👤</div>
+                        <span>Խաղացող 1</span>
+                    </div>
+
+                    <div class="player-seat">
+                        <div class="avatar">👤</div>
+                        <span>Խաղացող 2</span>
+                    </div>
+
+                </div>
+
+
+                <div class="center-table">
+
+                    <div class="table-message">
+                        Խաղը շուտով կսկսվի...
+                    </div>
+
+                </div>
+
+
+                <div class="opponent-area bottom">
+
+                    <div class="player-seat">
+
+                        <div class="avatar">👤</div>
+
+                        <span id="myPlayerName">
+                            Դու
+                        </span>
+
+                    </div>
+
+                    <div class="player-seat">
+
+                        <div class="avatar">👤</div>
+
+                        <span>Խաղացող 4</span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <div class="cards-area" id="cardsArea">
+
+                <!-- Քարտերը հետո այստեղ կավելացնենք -->
+
+            </div>
+
+
+            <div class="game-buttons">
+
+                <button id="kentBtn" class="kent-btn">
+                    KENT
+                </button>
+
+                <button id="stopBtn" class="stop-btn">
+                    STOP
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- Firebase + JavaScript -->
+
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>
